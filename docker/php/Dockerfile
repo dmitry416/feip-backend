@@ -1,10 +1,13 @@
-FROM php:8.3-fpm-alpine
+FROM php:8.4-fpm-alpine
 
 RUN apk add --no-cache \
     $PHPIZE_DEPS \
     postgresql-dev \
     libzip-dev \
-    icu-dev
+    icu-dev \
+    rabbitmq-c-dev
+
+RUN pecl install amqp && docker-php-ext-enable amqp
 
 RUN docker-php-ext-install pdo pdo_pgsql intl zip
 
