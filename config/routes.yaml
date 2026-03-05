@@ -3,3 +3,18 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+api_import:
+    path: /api/import
+    controller: App\Controller\ImportController::import
+    methods: POST
+
+test:
+    path: /test
+    controller: App\Controller\TestController::test
+    methods: GET
+
+api_test:
+    path: /api/test
+    controller: App\Controller\TestController::apiTest
+    methods: GET

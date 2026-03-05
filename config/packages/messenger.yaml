@@ -3,27 +3,63 @@ framework:
         failure_transport: failed
 
         transports:
-            # https://symfony.com/doc/current/messenger.html#transport-configuration
+            async_import:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    exchange:
+                        name: import_incoming
+                        type: direct
+                    queues:
+                        import_incoming: ~
+                serializer: 'app.messenger.custom_serializer'
+
+            async_vessels:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    queues:
+                        queue_vessels:
+                            arguments: { 'x-max-priority': 10 }
+
+            async_ports:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    queues:
+                        queue_ports:
+                            arguments: { 'x-max-priority': 10 }
+
+            async_companies:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    queues:
+                        queue_companies:
+                            arguments: { 'x-max-priority': 10 }
+
+            failed:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    queues:
+                        failed: ~
+
             async:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
                 options:
-                    use_notify: true
-                    check_delayed_interval: 60000
-                retry_strategy:
-                    max_retries: 3
-                    multiplier: 2
-            failed: 'doctrine://default?queue_name=failed'
-            # sync: 'sync://'
+                    queues:
+                        async: ~
 
         default_bus: messenger.bus.default
 
         buses:
-            messenger.bus.default: []
+            messenger.bus.default:
+                middleware:
+                    - validation
+                    - doctrine_transaction
 
         routing:
             Symfony\Component\Mailer\Messenger\SendEmailMessage: async
             Symfony\Component\Notifier\Message\ChatMessage: async
             Symfony\Component\Notifier\Message\SmsMessage: async
 
-            # Route your messages to the transports
-            # 'App\Message\YourMessage': async
+            App\Message\ImportIncomingMessage: async_import
+            App\Message\ImportVesselMessage: async_vessels
+            App\Message\ImportPortMessage: async_ports
+            App\Message\ImportCompanyMessage: async_companies

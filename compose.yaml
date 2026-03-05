@@ -37,6 +37,8 @@ services:
       context: ./docker/php
     volumes:
       - ./:/var/www/html
+      - ./docker/php/supervisor/supervisord.conf:/etc/supervisord.conf
+      - ./docker/php/supervisor/workers.conf:/etc/supervisor/conf.d/workers.conf
     depends_on:
       db:
         condition: service_healthy
